@@ -1,0 +1,362 @@
+# The Legitimate Heirs — editor asset manifest
+#
+# FORMAT: human-maintained source specification, NOT an Unreal import format.
+# Every `class` comes either from an official FrostKit guide or is intentionally
+# `TBD_FROM_VERIFIED_SAMPLE` to prevent inventing a nonexistent Blueprint API.
+# See Docs/FROSTKIT_OFFLINE_WIKI_2026-11-19.md.
+
+project:
+  internal_slug: LegitimateHeirs
+  visible_title_ru: "Легитимные Наследники"
+  asset_root: "/Game/Scenarios/LegitimateHeirs"
+  localization_culture: ru
+  delivery: custom_story_scenario
+  implementation_state: editor_source_only
+  forbidden_claim: "Do not describe this manifest as cooked or playable until PIE and cook are logged."
+
+naming:
+  data_asset: "DA_LH_<Domain>_<Name>"
+  blueprint: "BP_LH_<Role>_<Name>"
+  widget: "WBP_LH_<Name>"
+  unlock: "DA_LH_Unlock_<Name>"
+  quest: "BP_LH_Quest_<Name>"
+  dialog: "DA_LH_Dialog_<Name>"
+  dilemma: "DA_LH_Dilemma_<Name>"
+  policy: "DA_LH_Policy_<Name>"
+  law: "DA_LH_Law_<Name>"
+  research: "DA_LH_Research_<Name>"
+
+native_scenario_chain:
+  # Official scenario guide classes. Build this chain before any narrative logic.
+  levels:
+    - asset: "Levels/LH_World"
+      class: Level
+      purpose: "World level; base sublevels are copied/added from current FrostKit shared base."
+      required: true
+    - asset: "Levels/LH_Gameplay"
+      class: Level
+      required_actors:
+        - BP_CityArea
+        - BP_Territory
+      purpose: "Minimum gameplay layout required for boot."
+    - asset: "Levels/LH_Environment"
+      class: Level
+      purpose: "Landscape/environment for the city and Frostland."
+  configs:
+    - asset: "Configs/Frostland/DA_LH_Tile_Main"
+      class: PXFrostlandTileType
+      fields:
+        gameplay_level: "Levels/LH_Gameplay"
+        landscape_level: "Levels/LH_Environment"
+    - asset: "Configs/Frostland/DA_LH_FrostlandScenario"
+      class: PXFrostlandScenario
+      fields:
+        tiles:
+          - "DA_LH_Tile_Main"
+        coordinate_rule: "Every tile has unique X/Y coordinates."
+    - asset: "Configs/DA_LH_FrostlandRandomization"
+      class: PXFrostlandRandomizationConfig
+      fields:
+        frostland_scenario: "DA_LH_FrostlandScenario"
+        world_level: "Levels/LH_World"
+        grid_size_rule: "At least the number of added tiles."
+    - asset: "Configs/DA_LH_Level"
+      class: PXLevelConfig
+      fields:
+        frostland_randomization: "DA_LH_FrostlandRandomization"
+    - asset: "Configs/DA_LH_NationType"
+      class: PXNationType
+      purpose: "Own scenario nation; configure global resources, growth, trust, law categories only after asset audit."
+    - asset: "Configs/DA_LH_NationConfig"
+      class: PXNationConfig
+      fields:
+        nation_type: "DA_LH_NationType"
+    - asset: "Configs/DA_LH_CityType"
+      class: PXCityType
+    - asset: "Configs/DA_LH_CityAreaType"
+      class: PXCityAreaType
+    - asset: "Configs/DA_LH_Startup"
+      class: PXScenarioStartupConfig
+      fields:
+        level_config: "DA_LH_Level"
+        fog_of_war_start_tile: "DA_LH_Tile_Main"
+        nation_type: "DA_LH_NationType"
+        city_type: "DA_LH_CityType"
+        city_area_type: "DA_LH_CityAreaType"
+    - asset: "Configs/DA_LH_Runtime"
+      class: PXDefaultScenarioRuntimeSettings
+      fields:
+        scenario_startup_config: "DA_LH_Startup"
+        gameplay_gms: "TBD_FROM_CURRENT_SAMPLE"
+        world_level: "Levels/LH_World"
+    - asset: "Configs/DA_LH_Scenario"
+      class: PXScenario
+      fields:
+        runtime_settings: "DA_LH_Runtime"
+        display_name: "Легитимные Наследники"
+        display_description: "Сюжетная кампания о наследовании власти, долгах прошлого и цене легитимности."
+        variable_storage: "BP_LH_VariableStorage_Campaign"
+        scenario_scripts:
+          - "BP_LH_ScenarioScript_Act1"
+        available_story_arcs:
+          - "BP_LH_StoryArc_AnniversaryUltimatum"
+          - "BP_LH_StoryArc_LegalSuccession"
+        max_active_story_arcs: "TBD_AFTER_SAMPLE_AUDIT"
+        script_packs:
+          - "DA_LH_ScriptPack_Act1"
+
+state_model:
+  # Create in Scenario Variable/Constants Storage. Exact Variable Storage Blueprint
+  # parent and setter nodes must be copied from the current FrostKit sample.
+  asset: "BlueprintsSerialized/VariableStorage/BP_LH_VariableStorage_Campaign"
+  class: "TBD_FROM_VERIFIED_SAMPLE"
+  booleans:
+    FatherDeathSecret:
+      default: true
+      source: "Narrative audit §7.1"
+    AnniversaryUltimatumActive:
+      default: false
+    AgeAmendmentPassed:
+      default: false
+    LegalSuccessionComplete:
+      default: false
+    UsurpationAttempted:
+      default: false
+    Act1Complete:
+      default: false
+    BorderlandersLineComplete:
+      default: false
+    GuardsLineComplete:
+      default: false
+    FoundersLineComplete:
+      default: false
+    BorderlandersPromiseGiven:
+      default: false
+    GuardsPromiseGiven:
+      default: false
+    FoundersPromiseGiven:
+      default: false
+    BorderlandersVotesCommitted:
+      default: false
+    GuardsVotesCommitted:
+      default: false
+    FoundersVotesCommitted:
+      default: false
+    CourseBorderlanders:
+      default: false
+    CourseGuards:
+      default: false
+    CourseFounders:
+      default: false
+  integers:
+    CurrentWeek:
+      default: 1
+      rule: "Read actual scenario week if exposed; do not maintain a parallel counter unless necessary."
+    AnniversaryWeek:
+      default: 52
+    UltimatumDeadlineWeek:
+      default: 104
+    AmendmentSupportPercent:
+      default: 0
+      rule: "Derived from verified committed-vote mechanics; never hand-wave unknown delegate API."
+    AmendmentRequiredPercent:
+      default: 67
+    Act:
+      default: 1
+  floats: {}
+  derived_state:
+    can_negotiate_borderlanders: "BorderlandersLineComplete && !BorderlandersPromiseGiven"
+    can_negotiate_guards: "GuardsLineComplete && !GuardsPromiseGiven"
+    can_negotiate_founders: "FoundersLineComplete && !FoundersPromiseGiven"
+    can_submit_amendment: "AmendmentSupportPercent >= AmendmentRequiredPercent"
+    missed_ultimatum: "CurrentWeek >= UltimatumDeadlineWeek && !AgeAmendmentPassed"
+
+unlock_assets:
+  # PXUnlock Requirement is documented for research/policies. Use these names as
+  # gates only after proving current sample's unlock actions and save persistence.
+  class: "PXUnlock data-asset class: VERIFY exact class in current editor/sample"
+  assets:
+    - asset: "Configs/Unlocks/DA_LH_Unlock_Act1IntroSeen"
+    - asset: "Configs/Unlocks/DA_LH_Unlock_BorderlandersNegotiation"
+    - asset: "Configs/Unlocks/DA_LH_Unlock_GuardsNegotiation"
+    - asset: "Configs/Unlocks/DA_LH_Unlock_FoundersNegotiation"
+    - asset: "Configs/Unlocks/DA_LH_Unlock_AgeAmendmentAgenda"
+    - asset: "Configs/Unlocks/DA_LH_Unlock_LegalSuccession"
+    - asset: "Configs/Unlocks/DA_LH_Unlock_Act2"
+
+act1_scripts:
+  # Names represent responsibility, NOT unverified parent class names.
+  scenario_script:
+    asset: "BlueprintsSerialized/ScenarioScripts/BP_LH_ScenarioScript_Act1"
+    class: "TBD_FROM_VERIFIED_SAMPLE_SCENARIO_SCRIPT"
+    responsibilities:
+      - "Initialize campaign flags on a fresh scenario only."
+      - "Start the main age-amendment quest after intro."
+      - "Check week 52 and trigger anniversary exactly once."
+      - "Check week 104 and route missed deadline to verified fail/end mechanism."
+      - "Never reset a loaded save's completed flags."
+  flow_hub:
+    asset: "BlueprintsSerialized/BP_LH_FlowHub_Act1"
+    class: "TBD_FROM_VERIFIED_SAMPLE_FLOW_HUB"
+    responsibilities:
+      - "Sequence intro, dialog, quest activation and aftermath."
+      - "Route promise dialogue choices to state flags."
+      - "Route legal vote result to Act I finale."
+  story_arcs:
+    - asset: "BlueprintsSerialized/StoryArcs/BP_LH_StoryArc_AnniversaryUltimatum"
+      class: "TBD_FROM_VERIFIED_SAMPLE_STORY_ARC"
+      start_condition: "CurrentWeek >= 52 && !AnniversaryUltimatumActive && !Act1Complete"
+    - asset: "BlueprintsSerialized/StoryArcs/BP_LH_StoryArc_LegalSuccession"
+      class: "TBD_FROM_VERIFIED_SAMPLE_STORY_ARC"
+      start_condition: "AgeAmendmentPassed && !LegalSuccessionComplete"
+  script_pack:
+    asset: "Configs/ScriptPacks/DA_LH_ScriptPack_Act1"
+    class: "TBD_FROM_VERIFIED_SAMPLE_SCRIPT_PACK"
+
+quests:
+  # Duplicate a current FrostKit sample Quest. The exact base class/objective type
+  # must be recorded before manual creation.
+  - asset: "BlueprintsSerialized/Quests/BP_LH_Quest_RemoveAgeCensus"
+    class: "TBD_FROM_VERIFIED_SAMPLE_QUEST"
+    title: "Снятие возрастного ценза"
+    begins: "After secret-death intro"
+    completion: "AgeAmendmentPassed"
+    fail: "CurrentWeek >= 104 && !AgeAmendmentPassed"
+    objective_text:
+      - "Завершите линии малых фракций."
+      - "Получите обещания голосов."
+      - "Соберите 67% поддержки поправки."
+      - "Проведите «Право голоса после тридцати» до недели 104."
+  - asset: "BlueprintsSerialized/Quests/BP_LH_Quest_BorderlandersLine"
+    class: "TBD_FROM_VERIFIED_SAMPLE_QUEST"
+    title: "Долг перед Порубежниками"
+    completion: "BorderlandersLineComplete"
+    blocked_by_design: "Specific father debts/tasks are open canon; do not invent final objectives."
+  - asset: "BlueprintsSerialized/Quests/BP_LH_Quest_GuardsLine"
+    class: "TBD_FROM_VERIFIED_SAMPLE_QUEST"
+    title: "Долг перед Стражами"
+    completion: "GuardsLineComplete"
+    blocked_by_design: "Specific father debts/tasks are open canon; do not invent final objectives."
+  - asset: "BlueprintsSerialized/Quests/BP_LH_Quest_FoundersLine"
+    class: "TBD_FROM_VERIFIED_SAMPLE_QUEST"
+    title: "Долг перед Основателями"
+    completion: "FoundersLineComplete"
+    blocked_by_design: "Specific father debts/tasks are open canon; do not invent final objectives."
+
+dialogs_and_dilemmas:
+  # Exact DA class/choice action schema is intentionally pending the sample audit.
+  base_class: "TBD_FROM_VERIFIED_SAMPLE_DIALOG_OR_DILEMMA"
+  assets:
+    - id: LH_ACT1_ARRIVAL_01
+      asset: "Configs/Messages/Dialogs/DA_LH_Dialog_Act1_Arrival"
+      condition: "Fresh scenario intro"
+      effects: ["FatherDeathSecret=true", "Unlock_Act1IntroSeen"]
+    - id: LH_ACT1_RESTORATION_WAVE_01
+      asset: "Configs/Dilemmas/DA_LH_Dilemma_RestorationWaveOne"
+      condition: "Act I first restoration package"
+      effects: ["Needs editor verification for native/base-law replacement"]
+    - id: LH_ACT1_NEGOTIATE_BORDERLANDERS
+      asset: "Configs/Dilemmas/DA_LH_Dilemma_PromiseBorderlanders"
+      condition: "BorderlandersLineComplete && !BorderlandersPromiseGiven"
+      effects: ["BorderlandersPromiseGiven=true", "BorderlandersVotesCommitted=true"]
+    - id: LH_ACT1_NEGOTIATE_GUARDS
+      asset: "Configs/Dilemmas/DA_LH_Dilemma_PromiseGuards"
+      condition: "GuardsLineComplete && !GuardsPromiseGiven"
+      effects: ["GuardsPromiseGiven=true", "GuardsVotesCommitted=true"]
+    - id: LH_ACT1_NEGOTIATE_FOUNDERS
+      asset: "Configs/Dilemmas/DA_LH_Dilemma_PromiseFounders"
+      condition: "FoundersLineComplete && !FoundersPromiseGiven"
+      effects: ["FoundersPromiseGiven=true", "FoundersVotesCommitted=true"]
+    - id: LH_ACT1_ANNIVERSARY_52
+      asset: "Configs/Messages/Dialogs/DA_LH_Dialog_AnniversaryUltimatum"
+      condition: "week >= 52, only once"
+      effects: ["AnniversaryUltimatumActive=true", "UltimatumDeadlineWeek=104"]
+    - id: LH_ACT1_USURPATION
+      asset: "Configs/Dilemmas/DA_LH_Dilemma_Usurpation"
+      condition: "Player attempts unilateral cancellation path"
+      effects: ["UsurpationAttempted=true", "Verified failure/end route"]
+    - id: LH_ACT1_SUCCESSION
+      asset: "Configs/Messages/Dialogs/DA_LH_Dialog_LegalSuccession"
+      condition: "AgeAmendmentPassed"
+      effects: ["FatherDeathSecret=false", "LegalSuccessionComplete=true"]
+    - id: LH_ACT1_COURSE
+      asset: "Configs/Dilemmas/DA_LH_Dilemma_FirstCourse"
+      condition: "LegalSuccessionComplete"
+      effects: ["Exactly one Course<group>=true", "Act1Complete=true", "Unlock_Act2"]
+
+age_amendment_policy:
+  # Fully grounded portion comes from Policy Creation Guide.
+  policies:
+    - asset: "Configs/Policies/Rule/AgeCensus/DA_LH_Policy_PoliticsAfterFifty"
+      class: PXPolicyType
+      ingame_name: "Политика после пятидесяти"
+      can_be_default: true
+      custom_effect_text: "Сценарная конституционная печать: герой не может законно занять престол."
+      implementation_note: "Age-based eligibility is custom scenario logic, not claimed as base policy field."
+    - asset: "Configs/Policies/Rule/AgeCensus/DA_LH_Policy_VoteAfterThirty"
+      class: PXPolicyType
+      ingame_name: "Право голоса после тридцати"
+      required_yes_percentage: 67
+      is_charter_policy: "VERIFY relations-vote behavior in editor before enabling"
+      custom_effect_text: "Сценарная логика: законная передача власти наследнику."
+  law:
+    asset: "Configs/Policies/Rule/AgeCensus/DA_LH_Law_AgeCensus"
+    class: PXLawType
+    policies:
+      - "DA_LH_Policy_PoliticsAfterFifty"
+      - "DA_LH_Policy_VoteAfterThirty"
+  group:
+    asset: "Configs/Policies/Rule/AgeCensus/LawGroups/DA_LH_LawGroup_AgeCensus"
+    class: PXLawGroupType
+    laws: ["DA_LH_Law_AgeCensus"]
+  category:
+    asset: "Configs/Policies/Rule/AgeCensus/DA_LH_LawCategory_AgeCensus"
+    class: PXLawCategoryType
+    groups: ["DA_LH_LawGroup_AgeCensus"]
+    add_to_nation_initial_main_categories: "Only after verifying the intended start visibility."
+
+research_ideas:
+  # These are not approved for immediate implementation. They preserve the campaign's
+  # confirmed future intent and correct Topic->Outcome structure.
+  - asset: "Configs/Research/ResearchTopics/LH/DA_LH_Research_CoalProsthetics"
+    class: PXResearchTopic
+    status: "DEFERRED: Act II middle only"
+    outcome: "DA_LH_ResearchOutcome_CoalProsthetics"
+    gate: "Act II mid + ChildrenOfGenerator support; exact requirements require verified unlocks."
+  - asset: "Configs/Research/ResearchTopics/LH/DA_LH_Research_DistributedHearthNetwork"
+    class: PXResearchTopic
+    status: "DEFERRED: requires approved building art/gameplay scope"
+  - asset: "Configs/Research/ResearchTopics/LH/DA_LH_Research_PrivateEducationBlocks"
+    class: PXResearchTopic
+    status: "DEFERRED: requires approved building art/gameplay scope"
+  - asset: "Configs/Research/ResearchTopics/LH/DA_LH_Research_MeritRegistry"
+    class: PXResearchTopic
+    status: "DEFERRED: underlying registry mechanics unverified"
+
+law_scope_guard:
+  implement_now:
+    - "Age census Rule category only."
+    - "Base-game policies remain for Act I §1.3 as explicitly directed by design document."
+  do_not_implement_without_new_author_direction:
+    - "Act I draft basic city-restoration laws from redesign §1.3."
+    - "New Work Model (test category)."
+    - "Surplus Heat (test category)."
+    - "Workplace Control (test category)."
+    - "All categories below redesign §3.7 warning, including Childhood/Youth/Parenthood/Procreation/Crime/Radical emergency categories."
+  editor_rule:
+    - "Never remove a requirement from base policy/research asset; use Mark Deprecated after inspection."
+    - "Prefer Data Injection for compatible changes to base game values."
+
+localization:
+  source_file: "Narrative/act1_dialogue_source.csv"
+  workflow: "Use Unreal Localization Dashboard after real Dialog/Dilemma assets exist."
+  status: "RU source ready; generated locres/manifest must come from the editor."
+
+verification_gates:
+  - "Scenario boots in PIE."
+  - "Fresh scenario intro fires once and persists across save/load."
+  - "Week 52 scene fires exactly once."
+  - "Week 104 fail path is reachable and does not corrupt a save."
+  - "67% policy vote uses real policy UI and real current-game voting behavior."
+  - "Legal succession unlocks Act II exactly once."
+  - "Cooked mod boots outside PIE with no missing reference warnings."
