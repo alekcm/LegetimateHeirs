@@ -27,7 +27,7 @@
 2. С мая 2025 FrostKit 1.0 вышел из beta; публично заявлены **Play in Editor**, кнопка **Cook Mod**, улучшенная загрузка, tutorials и sample mods. [Официальный анонс/сводка патча](https://store.steampowered.com/news/app/1601580/view/498320947205373969?l=english) / [сводка](https://www.gamerant.com/frostpunk-2-free-major-content-update/)
 3. Сюжетный мод надо делать как **собственный scenario**: `PXScenario` + startup/runtime/level/nation configuration + serialized Blueprints/scripts/quests/dialog data. Не как ручную подмену `.pak` базовой игры.
 4. Для изменения существующих значений, где подходит модель Data Injection, надо предпочесть **Data Injection** прямому редактированию base assets: система additive и рассчитана на переживание патчей, пока разные моды не меняют один и тот же asset. [Официальное руководство](https://mod.io/g/frostpunk2/r/how-to-use-the-data-injection-system)
-5. Нативные `.uasset` и Blueprint graph нельзя достоверно создать или связать текстовым редактором. Их создаёт FrostKit/Unreal Editor. В этом репозитории на момент аудита **нет FrostKit, `Frostpunk2ModEditor`, `.uproject` или стартовых `.uasset`**; поэтому текстовый план не выдаётся за собранный мод.
+5. Нативные `.uasset` и Blueprint graph нельзя достоверно создать или связать текстовым редактором. Их создаёт FrostKit/Unreal Editor. После первичного аудита в репозиторий перенесён developer sample (`FrostkitSampleScenario/`, 69 нативных assets); его статический разбор — `FrostKitSource/SAMPLE_SCENARIO_AUDIT_2026-11-19.md`. Однако в среде по-прежнему нет FrostKit, `Frostpunk2ModEditor`, игры или `.uproject`; поэтому текстовый план и sample не выдаются за собранный мод.
 
 ---
 

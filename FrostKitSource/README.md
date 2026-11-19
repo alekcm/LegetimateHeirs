@@ -2,10 +2,11 @@
 
 Этот каталог — **source-of-truth для переноса в FrostKit**, а не каталог готовых Unreal assets.
 
-Почему здесь нет `.uasset`:
+Почему здесь ещё нет **новых** `.uasset` мода:
 
-- FrostKit / `Frostpunk2ModEditor` и Frostpunk 2 отсутствуют в checkout/среде;
-- `.uasset` — бинарные Unreal assets с editor-generated references и Blueprint graphs;
+- developer sample с 69 нативными `.uasset` находится в `../FrostkitSampleScenario/`; его разбор — `SAMPLE_SCENARIO_AUDIT_2026-11-19.md`;
+- FrostKit / `Frostpunk2ModEditor` и Frostpunk 2 отсутствуют в текущей Linux-среде;
+- новые `.uasset` — бинарные Unreal assets с editor-generated references и Blueprint graphs;
 - создавать их текстом или «угадывать» сериализацию нельзя: это даст повреждённый мод, а не заготовку.
 
 ## Как использовать после установки FrostKit

@@ -74,15 +74,16 @@ It must **not** reset promises, votes or Act completion when a saved scenario is
 
 From the current FrostKit sample locate and duplicate one each of:
 
-| Needed LH asset | Copy from | Record before editing |
+| Needed LH asset | Exact asset to duplicate | Static evidence / record before editing |
 |---|---|---|
-| `BP_LH_ScenarioScript_Act1` | sample Scenario Script | parent class, scenario-start event, timer/week access |
-| `BP_LH_FlowHub_Act1` | sample FlowHub | parent class, sequencing/wait/dialog nodes |
-| `BP_LH_Quest_RemoveAgeCensus` | sample Quest | parent/objective types and completion/failure hooks |
-| `BP_LH_StoryArc_AnniversaryUltimatum` | sample Story Arc | start condition and end condition hooks |
-| Dialog/Dilemma assets | closest sample dialog/dilemma | choice/action schema, localization fields |
-| Unlock assets | sample Unlock | exact activation and requirement model |
-| Script Pack | sample Script Pack | add/activate model |
+| `BP_LH_ScenarioScript_Act1` | `FrostkitSampleScenario/BlueprintsSerialized/ScenarioScripts/BP_FrostkitSample_UnlockFrostland` | confirmed `PXScenarioScript`; record scenario-start event and timer/week access |
+| `BP_LH_FlowHub_Act1` | `FrostkitSampleScenario/BlueprintsSerialized/BP_FrostkitSample_FlowHub` | confirmed StartQuest, WaitForQuest, predefined dialog and SetUnlockActive calls; record parent/graph pins |
+| `BP_LH_Quest_RemoveAgeCensus` | `FrostkitSampleScenario/BlueprintsSerialized/Quests/BP_FrostkitSample_Basics` | confirmed `PXQuest`; record objective types and completion/failure hooks |
+| `BP_LH_StoryArc_AnniversaryUltimatum` | `FrostkitSampleScenario/BlueprintsSerialized/StoryArks/BP_FrostkitSample_ColdSnops` | confirmed `BP_Standard_StoryArc` reference, `GetCurrentGameTime` and delayed quest/dialog pattern |
+| Dialog assets | `Configs/Messages/Dialogs/DA_FrostkitSample_BasicsMessage` / `ProvideCoal` / `EndMessage` | record action schema and localization fields |
+| Dilemma assets | `Configs/Dilemmas/DA_FrostkitSample_Generic_StockpileMaterials5` | confirmed `PXDilemmaType` / `PXDilemmaChoice`; record choice action schema |
+| Unlock assets | `Configs/Unlocks/DA_FrostkitSampleGameStart` | exact activation and requirement model |
+| Script Pack | `Configs/ScriptPacks/DA_FrostkitSample_MainSP` | add/activate model |
 
 This is deliberate: current public docs confirm the *systems* but not every graph node. The duplicate is the executable source of truth.
 

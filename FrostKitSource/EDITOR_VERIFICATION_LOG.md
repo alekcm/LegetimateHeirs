@@ -13,21 +13,23 @@
 | FrostKit Game Directory has no whitespace | NOT YET VERIFIED |
 | Mod Cooker Game Directory set to same `Frostpunk2.exe` folder | NOT YET VERIFIED |
 | FrostKit content root | NOT YET VERIFIED |
-| Sample scenario root / name | NOT YET VERIFIED |
+| Sample scenario root / name | Repository path known: `FrostkitSampleScenario/`; Editor compatibility NOT YET VERIFIED |
 | Current custom Content root | `/Game/Scenarios/LegitimateHeirs` planned |
 
 ## Native asset audit
 
-| Need | Exact sample asset path | Parent class | Verified operation | Result |
+Static metadata from the repository sample is recorded below; **runtime behaviour still needs Editor/PIE proof**. Full evidence: `SAMPLE_SCENARIO_AUDIT_2026-11-19.md`.
+
+| Need | Exact sample asset path | Parent class / static evidence | Verified operation | Result |
 |---|---|---|---|---|
-| Scenario variable storage | — | — | bool/int read/write and save persistence | NOT YET VERIFIED |
-| Scenario Script | — | — | scenario-start event, week source | NOT YET VERIFIED |
-| FlowHub | — | — | start/wait/sequence/dialog control | NOT YET VERIFIED |
-| Quest | — | — | objective, complete, fail | NOT YET VERIFIED |
-| Story Arc | — | — | start condition, active limit, end | NOT YET VERIFIED |
-| Dialog | — | — | localized text, continue, action | NOT YET VERIFIED |
-| Dilemma | — | — | choices and state effects | NOT YET VERIFIED |
-| Unlock | — | — | activation and use in requirements | NOT YET VERIFIED |
+| Scenario variable storage | `FrostkitSampleScenario/BlueprintsSerialized/VariableStorage/BP_FrostkitSample_VariableStorage.uasset` | shared `BP_Object` reference | bool/int read/write and save persistence | METADATA FOUND; PIE NOT YET VERIFIED |
+| Scenario Script | `FrostkitSampleScenario/BlueprintsSerialized/ScenarioScripts/BP_FrostkitSample_UnlockFrostland.uasset` | `PXScenarioScript` | scenario-start event, week source | METADATA FOUND; PIE NOT YET VERIFIED |
+| FlowHub | `FrostkitSampleScenario/BlueprintsSerialized/BP_FrostkitSample_FlowHub.uasset` | StartQuest / WaitForQuest / dialog / unlock calls found | start/wait/sequence/dialog control | METADATA FOUND; PIE NOT YET VERIFIED |
+| Quest | `FrostkitSampleScenario/BlueprintsSerialized/Quests/BP_FrostkitSample_Basics.uasset` | `PXQuest` | objective, complete, fail | METADATA FOUND; PIE NOT YET VERIFIED |
+| Story Arc | `FrostkitSampleScenario/BlueprintsSerialized/StoryArks/BP_FrostkitSample_ColdSnops.uasset` | `BP_Standard_StoryArc` reference | start condition, active limit, end | METADATA FOUND; PIE NOT YET VERIFIED |
+| Dialog | `FrostkitSampleScenario/Configs/Messages/Dialogs/DA_FrostkitSample_BasicsMessage.uasset` | native dialog data asset | localized text, continue, action | METADATA FOUND; PIE NOT YET VERIFIED |
+| Dilemma | `FrostkitSampleScenario/Configs/Dilemmas/DA_FrostkitSample_Generic_StockpileMaterials5.uasset` | `PXDilemmaType`, `PXDilemmaChoice` | choices and state effects | METADATA FOUND; PIE NOT YET VERIFIED |
+| Unlock | `FrostkitSampleScenario/Configs/Unlocks/DA_FrostkitSampleGameStart.uasset` | `PXUnlockType` reference | activation and use in requirements | METADATA FOUND; PIE NOT YET VERIFIED |
 | Script Pack | — | — | deferred script activation | NOT YET VERIFIED |
 | Scenario failure/end | — | — | hard Game Over, not mere message | NOT YET VERIFIED |
 | Week statistic/timer | — | — | actual campaign week read incl. fast-forward | NOT YET VERIFIED |

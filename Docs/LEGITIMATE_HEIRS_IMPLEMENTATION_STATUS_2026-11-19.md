@@ -5,7 +5,7 @@
 
 ## Итог в одном абзаце
 
-Я подготовил офлайн-вики FrostKit и **FrostKit-ready implementation package** в `FrostKitSource/`: asset manifest, точную схему Act I и пакет исходных текстов/состояний. Это максимально честная реализация, которую можно сделать из данного Linux-репозитория: здесь отсутствуют FrostKit, Frostpunk 2, Windows `Frostpunk2ModEditor`, `.uproject` и sample `.uasset`, а нативные Unreal assets нельзя корректно или безопасно сгенерировать текстом. Поэтому в ветке нет фальшивых `.uasset` и нет заявления, что мод уже запускается.
+Я подготовил офлайн-вики FrostKit и **FrostKit-ready implementation package** в `FrostKitSource/`: asset manifest, точную схему Act I и пакет исходных текстов/состояний. После исходного аудита в ветку перенесён developer sample `FrostkitSampleScenario/` с 69 нативными assets; его практический разбор записан в `FrostKitSource/SAMPLE_SCENARIO_AUDIT_2026-11-19.md`. В Linux-среде по-прежнему отсутствуют FrostKit, Frostpunk 2, Windows `Frostpunk2ModEditor` и `.uproject`, а нативные Unreal graphs нельзя корректно или безопасно сгенерировать текстом. Поэтому в ветке нет фальшивых `.uasset` и нет заявления, что мод уже запускается.
 
 ## Что добавлено сейчас
 
@@ -51,7 +51,7 @@
 
 ### A. Технический блокер среды
 
-На машине нет FrostKit и `Frostpunk2ModEditor`; поиск не нашёл также game assets/sample scenario. `.uasset` — бинарный формат Unreal, в котором graphs и asset references создаёт редактор. Самодельный текстовый файл с расширением `.uasset` был бы не модом, а повреждённым мусором.
+На машине нет FrostKit и `Frostpunk2ModEditor`. Developer sample с 69 game assets теперь находится в `FrostkitSampleScenario/`, но `.uasset` остаётся бинарным форматом Unreal, в котором новые graphs и asset references создаёт редактор. Самодельный текстовый файл с расширением `.uasset` был бы не модом, а повреждённым мусором.
 
 Файл `FrostKitSource/EDITOR_VERIFICATION_LOG.md` фиксирует конкретную процедуру вместо догадки. После установки FrostKit следующая техническая работа должна идти прямо там: создать native assets из manifest, compile, PIE, cook, запуск вне PIE.
 

@@ -6,7 +6,8 @@
 
 - Добавлена офлайн-вики `FROSTKIT_OFFLINE_WIKI_2026-11-19.md`: конспект всех 23 публичных guides Frostpunk 2 на mod.io, официального анонса и текущих ограничений FrostKit.
 - Добавлен `FrostKitSource/`: manifest native assets, схема editor wiring Акта I, исходники подтверждённых диалогов и verification log.
-- Зафиксировано, что текущий checkout не содержит FrostKit, игры или бинарных Unreal assets. Поэтому native `.uasset`/Blueprint не имитируются текстом и должны быть созданы/проверены в `Frostpunk2ModEditor`.
+- Первоначально зафиксировано отсутствие FrostKit/игры/редактора; затем в текущую ветку перенесён developer sample `FrostkitSampleScenario/` с 69 нативными Unreal assets. Добавлен его статический аудит `FrostKitSource/SAMPLE_SCENARIO_AUDIT_2026-11-19.md`.
+- Native `.uasset`/Blueprint не имитируются текстом: новые assets и graphs должны быть созданы/проверены в `Frostpunk2ModEditor` на основе sample.
 - Зафиксированы блокеры полной реализации: прямо запрещённые черновые/тестовые категории законов и открытые вопросы канона остаются неутверждёнными; они не заполняются выдуманным содержимым.
 
 ## 0.9 — 16 ноября 2026
