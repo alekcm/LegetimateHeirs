@@ -56,9 +56,9 @@ Static metadata from the repository sample is recorded below; **runtime behaviou
 | A4 | Week-52 ultimatum fires once | NOT RUN | NOT RUN | NOT RUN | — |
 | A5 | Death remains secret before legal succession | NOT RUN | NOT RUN | NOT RUN | — |
 | A6 | Incomplete group line cannot grant promise/votes | NOT RUN | NOT RUN | NOT RUN | — |
-| A7 | Promise saves, commits real support | NOT RUN | NOT RUN | NOT RUN | — |
-| A8 | Below 67 cannot trigger legal succession | NOT RUN | NOT RUN | NOT RUN | — |
-| A9 | 67% passage sets AgeAmendmentPassed | NOT RUN | NOT RUN | NOT RUN | — |
+| A7 | Borderlanders promise saves and unlocks the native Rule agenda | NOT RUN | NOT RUN | NOT RUN | — |
+| A8 | Native Rule vote below 67 cannot trigger legal succession | NOT RUN | NOT RUN | NOT RUN | — |
+| A9 | Native 67% Rule passage sets AgeAmendmentPassed | NOT RUN | NOT RUN | NOT RUN | — |
 | A10 | Week 104 produces hard scenario failure | NOT RUN | NOT RUN | NOT RUN | — |
 | A11 | Deadline-boundary ordering documented | NOT RUN | NOT RUN | NOT RUN | — |
 | A12 | Exactly one first-course flag and Act II unlock | NOT RUN | NOT RUN | NOT RUN | — |

@@ -60,8 +60,8 @@ Act1Complete = false
 CurrentWeek = 1                    # only if current-week value must be mirrored
 AnniversaryWeek = 52
 UltimatumDeadlineWeek = 104
-AmendmentRequiredPercent = 67
 Act = 1
+# 67% is native Rule-branch behaviour; do not store a parallel threshold.
 ```
 
 It must **not** reset promises, votes or Act completion when a saved scenario is loaded. Prove this with save/load.
@@ -97,10 +97,10 @@ BOOT
   → main quest active
   → [wait for CurrentWeek >= 52]
   → ACT1_ANNIVERSARY_52, deadline=104
-  → [support reaches >=67]
-  → open age-amendment policy vote
+  → [v0.1 Borderlanders promise unlocks the agenda]
+  → open native Rule-branch age-amendment vote (67% is native)
      ├─ passes → LEGAL_SUCCESSION → FIRST_COURSE → ACT 2 UNLOCK
-     └─ rejected/insufficient → quest remains active
+     └─ rejected → quest remains active
 
 At every week tick after week 52:
   if CurrentWeek >= 104 and not AgeAmendmentPassed:
@@ -131,46 +131,48 @@ Create `BP_LH_Quest_RemoveAgeCensus` by duplicating a current sample quest.
 
 | Stage | Visible timing | Completion signal |
 |---|---|---|
-| Find political support | start | any completed line exposes its promise negotiation |
-| Build support | after one or more promises | `AmendmentSupportPercent` reaches 67 |
+| Find political support | start | v0.1 Borderlanders line exposes its promise negotiation |
+| Place amendment on agenda | after the Borderlanders promise | `AgeAmendmentAgendaUnlocked=true` |
+| Council vote | after agenda unlock | native Rule-branch Council result; 67% is not mirrored in custom storage |
 | Deadline | only after Act I week 52 scene | `AgeAmendmentPassed`; failure at week 104 |
 
-Do not require the player to complete all three lines if verified faction vote weights make 67% achievable with fewer. The design says the player must collect enough agreements, but it does not assign numerical weights; those weights must be authored/approved and test-balanced, not invented here.
+The author explicitly rejected invented faction vote weights. `Политика после пятидесяти` / `Право голоса после тридцати` must be one Law in the existing vanilla **Rule** branch, where the actual Council requires 67% for all laws. The promise must use the current game's verified standing/agenda mechanism; it is not permission to spoof a vote result.
 
-Quest succeeds only on `AgeAmendmentPassed`, not merely `support >=67`: the actual Law must pass.
+Quest succeeds only on `AgeAmendmentPassed`, never merely on a promise/agenda gate: the actual Rule Law must pass.
 
 ---
 
 ## 5. The age-census Law category
 
-Follow the official policy hierarchy:
+Put a new Law into the existing vanilla **Rule** branch. Do not make a second custom Rule category or group:
 
 ```text
 DA_LH_Policy_PoliticsAfterFifty
 DA_LH_Policy_VoteAfterThirty
   → DA_LH_Law_AgeCensus
-  → DA_LH_LawGroup_AgeCensus
-  → DA_LH_LawCategory_AgeCensus
-  → DA_LH_NationType Initial Main Categories (only if visibility test passes)
+  → existing base-game Rule Law Group
+  → existing base-game Rule Law Category
 ```
+
+Locate the exact current Rule group/category through `PXPolicyConfig` in the editor, duplicate only the policies/law needed for the LH scenario, and record the paths in the verification log.
 
 ### 5.1. Required fields
 
 - Start policy: `Политика после пятидесяти`, `Can be Default=true`.
-- Amendment: `Право голоса после тридцати`, **Required Yes Percentage = 67**.
+- Amendment: `Право голоса после тридцати`; it must inherit the **native 67% Rule-branch** Council requirement. Verify the UI and actual vote before exposing it.
 - Both policies use **Custom Gameplay Effect Text** to disclose scenario-managed effects; do not pretend age filtering is a native policy modifier.
 - The amendment's on-activate action / Scenario Script must set `AgeAmendmentPassed=true` only after the successful vote result is received.
 
 ### 5.2. Voting verification
 
-The public guide documents `Is Charter Policy` and relation thresholds, but not age-based delegates or custom vote shares. Prove these questions in a throwaway law:
+The public guide documents `Is Charter Policy` and relation thresholds, but not age-based delegates or custom vote shares. The author selected the native Rule route, so prove these questions in a throwaway Law in the existing Rule branch:
 
-1. Does `Required Yes Percentage=67` visibly and mechanically require 67% in the current game?
-2. Does `Is Charter Policy` cause relation-based voting for the current scenario nation?
-3. What vote input can be changed by a custom group/promise without modifying base global assets?
+1. Does every current Rule-law UI/behaviour visibly and mechanically require 67% in this game version?
+2. Can the LH law be attached to Rule without changing shared/base categories globally?
+3. What native standing/relation/unlock route can make the Borderlanders promise unlock the law's agenda without modifying base global assets?
 4. Does a failed proposal remain eligible, and on what cadence?
 
-Only then connect promise state to support. If no native hook exists, preserve the law as UI/council vote and use a documented scenario-script gate that only puts it on agenda after commitments. Never falsify the policy's vote count in text.
+If a promise can only gate the agenda and cannot alter votes, preserve that truth in the UI. Never create an artificial support percentage or claim that an unlock guarantees a passing Council vote.
 
 ### 5.3. Usurpation
 
@@ -180,53 +182,58 @@ The campaign says unilateral repeal is impossible and causes expulsion/failure. 
 
 ## 6. Faction lines and promises
 
-The known parts of all three lines are structurally identical; their **specific debts/tasks are explicitly open canon**. Build the shared state and negotiation gates now, but do not invent 2–3 tasks per group.
+Version 0.1 implements only the **Borderlanders** line. The author explicitly allowed the agent to write a provisional v0.1 task chain and promise; it must retain the `LH_V01_PROVISIONAL_` prefix and cannot be silently folded into fixed canon. Guards and Founders stay deferred.
 
 ### 6.1. Completion and promise contract
 
 ```text
-if <Group>LineComplete && !<Group>PromiseGiven:
-    unlock/open DA_LH_Dilemma_Promise<Group>
+if BorderlandersLineComplete && !BorderlandersPromiseGiven:
+    unlock/open DA_LH_Dilemma_PromiseBorderlanders
 
 On player acceptance:
-    <Group>PromiseGiven = true
-    <Group>VotesCommitted = true
-    recalculate AmendmentSupportPercent via verified group-vote rule
+    BorderlandersPromiseGiven = true
+    BorderlandersVotesCommitted = true
+    AgeAmendmentAgendaUnlocked = true
+    apply only the verified native Rule-vote standing/agenda effect
 
 On refusal/defer:
-    no commitment
-    do not silently award votes
+    no promise
+    no agenda unlock
 ```
 
-Each promise must have a persistent future-cost record for Act II. The exact content is open canon; create a placeholder comment/field `Promise_<Group>_Terms_TBD` rather than fake text.
+The promise must retain a persistent future-cost flag for Act II. Its detailed text is provisional v0.1 authoring, not fixed canon. It must never calculate or display fake support percentages.
 
-### 6.2. Required native assets
+### 6.2. Required native assets for v0.1
 
-| Group | Completion quest | Promise dilemma | Unlock |
-|---|---|---|---|
-| Порубежники | `BP_LH_Quest_BorderlandersLine` | `DA_LH_Dilemma_PromiseBorderlanders` | `DA_LH_Unlock_BorderlandersNegotiation` |
-| Стражи | `BP_LH_Quest_GuardsLine` | `DA_LH_Dilemma_PromiseGuards` | `DA_LH_Unlock_GuardsNegotiation` |
-| Основатели | `BP_LH_Quest_FoundersLine` | `DA_LH_Dilemma_PromiseFounders` | `DA_LH_Unlock_FoundersNegotiation` |
+| Group | Completion quest | Promise dilemma | Unlock | Status |
+|---|---|---|---|---|
+| Порубежники | `BP_LH_Quest_BorderlandersLine` | `DA_LH_Dilemma_PromiseBorderlanders` | `DA_LH_Unlock_BorderlandersNegotiation` | **Implement**; provisional narrative IDs carry `LH_V01_PROVISIONAL_` |
+| Стражи | — | — | — | deferred |
+| Основатели | — | — | — | deferred |
 
-Do not create custom factions/communities until the editor audit identifies the real faction data model, relationships and UI registration route. State flags and dialogs are sufficient to prove Act I campaign flow.
+Do not create custom factions/communities until the editor audit identifies the real faction data model, relationships and UI registration route. The v0.1 promise is a verified Rule-agenda/standing gate, not a false custom vote counter.
 
 ---
 
 ## 7. Restoration packages and the Twelve Seals
 
-The written design contains two intentional constraints that conflict with a naïve complete law implementation:
+The author clarified the intended implementation:
 
-- It defines twelve start seals and three four-law restoration packages.
-- It explicitly says **do not implement** the draft custom Act-I laws in §1.3 and use base-game laws instead.
+- all twelve §1.2 seals are **custom start policies** and are active from the first week without a vote;
+- a seal belongs to its existing base-game Law question;
+- when the player replaces a seal, the replacement choices are existing base-game policies in that same question;
+- the draft custom Act-I replacement policies in §1.3 remain forbidden.
 
-Implementing twelve custom native policies plus twelve custom replacements now would violate the second instruction. Therefore the only safe implementation order is:
+Implementation order:
 
-1. Keep base-game laws as the current Act-I laws.
-2. Make a restoration package a Scenario Dialog/Dilemma/Quest milestone only after checking whether the current engine permits selecting/replacing the exact base policies in a custom scenario.
-3. If it does, map every approved wave to four exact existing assets in an editor table; if it does not, model package completion as story state and do **not** claim it changed four policies.
-4. Do not create §1.3 draft effects until author direction changes.
+1. For each of the twelve categories, identify the current base `PXLawType` and its start/default policy in the editor.
+2. Duplicate the closest policy as `DA_LH_Seal_<Category>`; configure the approved negative modifier and player-facing text.
+3. Add that duplicate to the **existing** Law; arrange scenario-specific start state so it is active from week one.
+4. Confirm that taking a vanilla alternative replaces the active seal and that effects do not stack.
+5. Use the three restoration packages only as narrative/quest milestones in v0.1 unless editor testing proves the exact base-law replacement flow works inside this scenario.
+6. Do not create §1.3 draft effects.
 
-The editor table must be added only after inspection, because asset paths/names are versioned game content.
+The editor table must be added only after inspection, because exact asset paths/names and modifier tags are versioned game content. `Паёк ожидания` cannot be wired until the author resolves its explicitly uncertain Hunger/Food effect.
 
 ---
 
@@ -306,10 +313,10 @@ The docs state the chosen group will be fanatically loyal and offer a unique bon
 | A3 persistence | save after intro, reload | no state reset |
 | A4 anniversary | time to week 52 | private event once; visible deadline starts |
 | A5 no early public reveal | reach week 52 without amendment | secret remains true |
-| A6 promise gate | line incomplete | no promise dialog/votes |
-| A7 commitment | line complete, accept promise | persistent promise + votes state only once |
-| A8 insufficient support | submit/attempt before 67 | no legal succession |
-| A9 67% law | verified support ≥67 | actual policy vote uses 67% and success sets amendment flag |
+| A6 promise gate | Borderlanders line incomplete | no Borderlanders promise dialog / no Rule agenda unlock |
+| A7 commitment | Borderlanders line complete, accept promise | persistent promise + native Rule-agenda gate exactly once |
+| A8 insufficient support | native Rule vote below 67 | no legal succession |
+| A9 67% Rule law | native Council reaches threshold | actual Rule policy vote succeeds and sets amendment flag |
 | A10 deadline | reach week 104 without pass | actual hard scenario failure/end |
 | A11 edge ordering | pass at deadline boundary | result follows documented/tested order |
 | A12 finale | legal pass | death public, exactly one course selected, Act 2 unlocked |

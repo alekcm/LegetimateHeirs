@@ -132,6 +132,9 @@ state_model:
       default: false
     BorderlandersPromiseGiven:
       default: false
+    AgeAmendmentAgendaUnlocked:
+      default: false
+      rule: "v0.1 Rule-law agenda gate after the provisional Borderlanders promise."
     GuardsPromiseGiven:
       default: false
     FoundersPromiseGiven:
@@ -156,11 +159,6 @@ state_model:
       default: 52
     UltimatumDeadlineWeek:
       default: 104
-    AmendmentSupportPercent:
-      default: 0
-      rule: "Derived from verified committed-vote mechanics; never hand-wave unknown delegate API."
-    AmendmentRequiredPercent:
-      default: 67
     Act:
       default: 1
   floats: {}
@@ -168,8 +166,11 @@ state_model:
     can_negotiate_borderlanders: "BorderlandersLineComplete && !BorderlandersPromiseGiven"
     can_negotiate_guards: "GuardsLineComplete && !GuardsPromiseGiven"
     can_negotiate_founders: "FoundersLineComplete && !FoundersPromiseGiven"
-    can_submit_amendment: "AmendmentSupportPercent >= AmendmentRequiredPercent"
+    can_submit_amendment_v01: "BorderlandersPromiseGiven && AgeAmendmentAgendaUnlocked"
     missed_ultimatum: "CurrentWeek >= UltimatumDeadlineWeek && !AgeAmendmentPassed"
+  non_variables:
+    - "The 67% threshold is native Rule-branch Council behaviour, not AmendmentSupportPercent."
+    - "No invented faction vote weights are stored in Variable Storage."
 
 unlock_assets:
   # PXUnlock Requirement is documented for research/policies. Use these names as
@@ -223,10 +224,9 @@ quests:
     completion: "AgeAmendmentPassed"
     fail: "CurrentWeek >= 104 && !AgeAmendmentPassed"
     objective_text:
-      - "Завершите линии малых фракций."
-      - "Получите обещания голосов."
-      - "Соберите 67% поддержки поправки."
-      - "Проведите «Право голоса после тридцати» до недели 104."
+      - "Завершите линию Порубежников."
+      - "Получите их обещание и откройте поправку для голосования."
+      - "Проведите Rule-закон «Право голоса после тридцати» (67%) до недели 104."
   - asset: "BlueprintsSerialized/Quests/BP_LH_Quest_BorderlandersLine"
     class: "TBD_FROM_VERIFIED_SAMPLE_QUEST"
     title: "Долг перед Порубежниками"
@@ -285,7 +285,10 @@ dialogs_and_dilemmas:
       effects: ["Exactly one Course<group>=true", "Act1Complete=true", "Unlock_Act2"]
 
 age_amendment_policy:
-  # Fully grounded portion comes from Policy Creation Guide.
+  # Author decision 2026-11-19: this is a Law INSIDE the existing vanilla Rule
+  # branch. It must inherit the native 67% Council rule, not implement a new
+  # Rule category or custom faction-weight arithmetic.
+  existing_rule_branch: "Locate exact current-game PXLawGroupType/PXLawCategoryType in editor; do not duplicate it."
   policies:
     - asset: "Configs/Policies/Rule/AgeCensus/DA_LH_Policy_PoliticsAfterFifty"
       class: PXPolicyType
@@ -296,8 +299,7 @@ age_amendment_policy:
     - asset: "Configs/Policies/Rule/AgeCensus/DA_LH_Policy_VoteAfterThirty"
       class: PXPolicyType
       ingame_name: "Право голоса после тридцати"
-      required_yes_percentage: 67
-      is_charter_policy: "VERIFY relations-vote behavior in editor before enabling"
+      required_yes_percentage: "Inherit/verify existing Rule branch's native 67% requirement."
       custom_effect_text: "Сценарная логика: законная передача власти наследнику."
   law:
     asset: "Configs/Policies/Rule/AgeCensus/DA_LH_Law_AgeCensus"
@@ -305,15 +307,40 @@ age_amendment_policy:
     policies:
       - "DA_LH_Policy_PoliticsAfterFifty"
       - "DA_LH_Policy_VoteAfterThirty"
-  group:
-    asset: "Configs/Policies/Rule/AgeCensus/LawGroups/DA_LH_LawGroup_AgeCensus"
-    class: PXLawGroupType
-    laws: ["DA_LH_Law_AgeCensus"]
-  category:
-    asset: "Configs/Policies/Rule/AgeCensus/DA_LH_LawCategory_AgeCensus"
-    class: PXLawCategoryType
-    groups: ["DA_LH_LawGroup_AgeCensus"]
-    add_to_nation_initial_main_categories: "Only after verifying the intended start visibility."
+    attach_to: "Existing vanilla Rule Law Group after editor audit."
+  explicitly_not_created:
+    - "No DA_LH_LawGroup_AgeCensus."
+    - "No DA_LH_LawCategory_AgeCensus."
+    - "No AmendmentSupportPercent or invented faction vote weights."
+
+twelve_seals:
+  # Author decision 2026-11-19: all are custom PXPolicyType start states in
+  # existing vanilla law questions, active from week one with no starting vote.
+  activation: "Set as scenario-specific defaults after editor proof; replacement selects an existing base-game policy in the same PXLawType."
+  effect_source: "Docs/FROSTPUNK2_CAMPAIGN_LAW_REDESIGN_v0.1.md §1.2"
+  policies:
+    - { category: "Waste Heat Conversion", name: "Неподвижный контур", effect: "All Housing Districts: -1 Temperature Level" }
+    - { category: "Worker Shifts", name: "Смена до падения", effect: "All Production Districts: -10% Efficiency" }
+    - { category: "Scout Training", name: "Недоукомплектация исследователей", effect: "+1 Territory Threat" }
+    - { category: "Basic Necessities", name: "Паёк ожидания", effect: "UNRESOLVED: design says -20% satiety or +2-% Hungry" }
+    - { category: "Housing Distribution", name: "Запертые спальни", effect: "-20% Shelter" }
+    - { category: "Outsiders", name: "Закрытые ворота", effect: "Population Growth disabled; +5 Crime" }
+    - { category: "Community Service", name: "Инвентарь в долг", effect: "+10% Materials Demand" }
+    - { category: "Maintenance Duty", name: "Верховенство бумаги", effect: "+20% Squalor" }
+    - { category: "Work Compensation", name: "Расчёт долгом", effect: "-2 Heatstamps; frequency/modifier type VERIFY" }
+    - { category: "Labour Organisation", name: "Запрет на работу", effect: "-10% Active Workforce; +5 Crime" }
+    - { category: "Funerals", name: "Безымянная яма", effect: "Trust loss from deaths +25%" }
+    - { category: "Childhood", name: "Легализация беспризорничества", effect: "+10 Crime" }
+  constraints:
+    - "Do not create §1.3 draft replacement policies."
+    - "Do not stack a seal with an accepted base-game alternative."
+    - "Do not guess the Food/Hunger modifier for Паёк ожидания."
+
+v01_vertical_slice:
+  approved_scope: "Intro + Twelve Seals + Borderlanders provisional line + Rule amendment + Week 52/104 + legal succession."
+  active_faction_line: "Borderlanders"
+  other_faction_lines: "Deferred; their existing manifest placeholders are not active v0.1 content."
+  provisional_content_prefix: "LH_V01_PROVISIONAL_"
 
 research_ideas:
   # These are not approved for immediate implementation. They preserve the campaign's
@@ -335,8 +362,9 @@ research_ideas:
 
 law_scope_guard:
   implement_now:
-    - "Age census Rule category only."
-    - "Base-game policies remain for Act I §1.3 as explicitly directed by design document."
+    - "Age census Law inside the existing vanilla Rule branch."
+    - "All twelve start seals from redesign §1.2, active without a starting vote."
+    - "Existing base-game policies replace a seal in the same Law question."
   do_not_implement_without_new_author_direction:
     - "Act I draft basic city-restoration laws from redesign §1.3."
     - "New Work Model (test category)."
